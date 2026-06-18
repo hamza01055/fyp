@@ -1,0 +1,175 @@
+# Smart City Issue Detection & Reporting System
+
+An AI-powered web application that lets citizens report urban issues by submitting a
+photo and GPS location. A trained YOLOv8 model automatically detects and classifies the
+issue, and city administrators manage everything from a live map dashboard.
+
+The system detects three classes of urban issues:
+
+- **Pothole** — damaged road surfaces
+- **Traffic_Light** — traffic signal infrastructure
+- **Waste_Container** — garbage bins and waste accumulation
+
+## Why this project
+
+Traditional municipal complaint systems are slow and manual: a citizen files a complaint,
+someone reads it, someone categorizes it, someone routes it. This project automates the
+detection and categorization step using computer vision, so a report is classified the
+moment it is submitted and appears on the admin dashboard in seconds.
+
+## How it works
+
+A citizen submits a photo, description, and GPS coordinates through the web form. The
+backend saves the image and report details, then places a job on a queue. A background
+worker picks up the job, sends the image to the machine-learning service, and the model
+returns the detected category, a confidence score, and a bounding box. The worker writes
+those results back to the database, and the admin dashboard shows the report on an
+interactive map, color-coded by issue type.
+
+```
+  Citizen (React frontend)
+        |
+        |  POST /api/report  (photo + GPS + description)
+        v
+  Backend (Express)  --->  PostgreSQL + PostGIS   (stores report, status = pending)
+        |
+        |  enqueue job
+        v
+  Redis queue (BullMQ)
+        |
+        |  worker pulls job
+        v
+  Worker (Node.js)  --->  ML Service (FastAPI + YOLOv8)  --->  category + confidence + bbox
+        |
+        |  UPDATE report (status = reviewed)
+        v
+  Admin Dashboard (live map, stats, table)
+```
+
+## Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React, Vite, Tailwind CSS, Formik + Yup, Leaflet (maps) |
+| Backend | Node.js, Express, Multer (uploads), BullMQ (queue producer) |
+| Database | PostgreSQL with PostGIS for geospatial data |
+| Queue | Redis + BullMQ |
+| Worker | Node.js, BullMQ consumer |
+| ML Service | Python, FastAPI, Ultralytics YOLOv8 |
+| Model | YOLOv8m, custom-trained on 3 classes |
+| Deployment | Docker (multi-container) |
+
+## The machine learning model
+
+The detection model is a YOLOv8m network trained on a custom dataset of roughly 1,500
+labeled images across the three classes. Training was run for 100 epochs on a Google Colab
+T4 GPU.
+
+**Validation results:**
+
+| Metric | Score |
+|--------|-------|
+| mAP@50 | 0.73 |
+| mAP@50–95 | 0.41 |
+| Precision | 0.82 |
+| Recall | 0.70 |
+
+The trained weights live at `ml_service/weights/best.pt`. The FastAPI service loads them on
+startup and exposes a `/predict` endpoint that accepts an image and returns predictions.
+
+To retrain or extend the model (for example, to add new classes like fire or flooding), use
+the notebook at `notebooks/yolov8_training.ipynb`, then drop the new `best.pt` into
+`ml_service/weights/` and restart the ML service.
+
+## Project structure
+
+```
+smart-city-project/
+├── frontend/       React app: report form, status tracker, admin dashboard
+├── backend/        Express API: report submission, listing, admin updates, queue producer
+├── ml_service/     FastAPI service hosting the YOLOv8 model
+│   └── weights/    Trained model (best.pt)
+├── worker/         Background worker: pulls queue jobs, calls ML, updates the database
+├── data/           Training dataset (raw_dataset/pothole, traffic_lights, waste_container)
+├── notebooks/      YOLOv8 training notebook for Google Colab
+├── prepare_dataset.py   Cleans and splits the dataset into YOLO train/valid format
+├── docker-compose.yml
+└── .env            Environment configuration
+```
+
+## Running the project
+
+### Prerequisites
+
+- Docker Desktop installed and running
+- The trained model present at `ml_service/weights/best.pt`
+
+### Start all services
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+This starts six containers: PostgreSQL, Redis, the ML service, the backend, the worker, and
+the frontend.
+
+Once everything is running, open:
+
+- **Citizen app:** http://localhost:5173
+- **Admin dashboard:** http://localhost:5173/admin
+- **Backend API:** http://localhost:3333
+- **ML service docs:** http://localhost:8000/docs
+
+### Trying it out
+
+On the citizen page, add a photo of a pothole, traffic light, or waste container, write a
+short description, click "Use my location" to capture GPS, and submit. Within a few seconds
+the report appears on the admin dashboard with the AI-detected category and confidence
+score.
+
+## Environment configuration
+
+The `.env` file holds all configuration. The important distinction: backend services running
+inside Docker reach each other by container name (`postgres`, `redis`, `ml_service`), while
+the frontend variables use `localhost` because they are read by the browser, not by a
+container.
+
+```
+DB_HOST=postgres
+REDIS_HOST=redis
+ML_SERVICE_URL=http://ml_service:8000
+VITE_API_URL=http://localhost:3333
+USE_REAL_MODEL=true
+MODEL_PATH=/app/weights/best.pt
+```
+
+## Features
+
+**Citizen features**
+- Submit reports with photo, description, and GPS location
+- Track report status by ID
+
+**Admin dashboard**
+- Interactive map of all reports, color-coded by category
+- Statistics by status and by issue type
+- Sortable table of recent reports
+- Filter by category
+
+**Machine learning**
+- Automatic issue classification from photos
+- Confidence scoring for every detection
+- Bounding-box localization of the detected issue
+
+## Future work
+
+- Real-time dashboard updates via WebSockets (currently polls every few seconds)
+- Automatic routing of reports to the responsible city department
+- Analytics: resolution times, hotspot heatmaps, trend charts
+- Additional issue classes (fire, flooding, traffic accidents)
+- Cloud deployment
+
+## Author
+
+Built as a final-year project by [hamza01055](https://github.com/hamza01055).
