@@ -2,9 +2,11 @@ name: Pylint
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   pylint:
@@ -27,7 +29,7 @@ jobs:
       - name: Run Pylint
         run: |
           find . -type f -name "*.py" \
-          ! -path "./.venv/*" \
-          ! -path "./frontend/*" \
-          ! -path "./node_modules/*" \
-          | xargs pylint --disable=C0114,C0115,C0116 || true
+            ! -path "./.venv/*" \
+            ! -path "./frontend/*" \
+            ! -path "./node_modules/*" \
+            | xargs pylint --disable=C0114,C0115,C0116 || true
