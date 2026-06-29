@@ -1,4 +1,4 @@
-<div align="center">
+<img width="960" height="540" alt="Screenshot 2026-06-29 065215" src="https://github.com/user-attachments/assets/61e12f4b-9039-4d74-82f5-1e986f2a18aa" /><div align="center">
 
 # 🏙️ SmartCity — AI-Powered Urban Issue Detection & Reporting System
 
@@ -33,11 +33,25 @@ Traditional municipal complaint systems are slow: a citizen files a complaint �
 - 👷 Field worker gets assigned and resolves it
 
 ---
+## 🎥 Demo
 
+![Demo](assets/demo.gif)
+
+📹 Full Video: https://www.youtube.com/watch?v=qiU9LLmWEfM
 ## 📸 Screenshots
 
+<img width="960" height="540" alt="Screenshot 2026-06-29 064919" src="https://github.com/user-attachments/assets/ec34dc15-780a-4c1d-aa28-ce552afd7272" />
+<img width="960" height="540" alt="Screenshot 2026-06-29 065457" src="https://github.com/user-attachments/assets/2e870599-bf8a-4c39-83a5-acf3372ecd1d" />
+<img width="960" height="540" alt="Screenshot 2026-06-29 065433" src="https://github.com/user-attachments/assets/4d03fa3a-cef7-4055-8054-40751e3bcbb4" />
+<img width="960" height="540" alt="Screenshot 2026-06-29 065400" src="https://github.com/user-attachments/assets/c6bfd78c-a88c-4ee4-81cb-8fb0ad32a9ae" />
+<img width="960" height="540" alt="Screenshot 2026-06-29 065255" src="https://github.com/user-attachments/assets/ca805feb-390f-4609-870f-078f8c1c3432" />
+<img width="960" height="540" alt="Screenshot 2026-06-29 065215" src="https://github.com/user-attachments/assets/c6c56857-f9c3-4f73-b468-164277a5e6ea" />
+<img width="960" height="540" alt="Screenshot 2026-06-29 065155" src="https://github.com/user-attachments/assets/b96486f1-75ac-4011-9a06-2b3d16567192" />
+<img width="960" height="540" alt="Screenshot 2026-06-29 065343" src="https://github.com/user-attachments/assets/38412b03-8e7d-4f54-9646-fcb8bc0cd7a1" />
+<img width="960" height="540" alt="Screenshot 2026-06-29 065309" src="https://github.com/user-attachments/assets/b27f8821-bd8a-4d64-b264-5021968a7b2c" />
+
+
 ### 🏠 Citizen Report Page
-![Report Page](screenshots/screenshot1_report.png)
 > Citizens upload a photo and share GPS location. YOLOv8 AI automatically detects and classifies the urban issue.
 
 ---
